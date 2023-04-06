@@ -41,13 +41,14 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 script{
-                    docker.withRegistry('',REGISTRY_CREDS){
+                    docker.withRegistry('',REGISTRY_CREDS){ docker_registry ->
                         docker_image.push("$IMAGE_TAG")
                         docker_image.push('latest')
                     }
                 }
             }
         }
+
 
 
         stage('Delete Docker images') {
@@ -82,10 +83,11 @@ pipeline {
                     """
 
                     withCredentials([gitUsernamePassword(credentialsId: 'github', gitToolName: 'Default')]) {
-                        git push "https://github.com/mgelvoleo/git-ops-project.git" main
+                        sh "git push https://github.com/mgelvoleo/git-ops-project.git main"
                     }
-                }
+                }   
             }
         }
     }
 }
+//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
