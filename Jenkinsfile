@@ -60,7 +60,7 @@ pipeline {
                     sh """
                         cat deployment.yml
                         sed -i 's/${APP_NAME}.*/${APP_NAME}:${IMAGE_TAG}/g' deployment.yml
-                        cat dployment.yml
+                        cat deployment.yml
                     """
                 }
             }
