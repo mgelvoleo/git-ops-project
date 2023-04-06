@@ -10,14 +10,16 @@ pipeline {
     }
 
     stages {
-        stage('Clean up workspace'){
+
+        stage('Clean up workspace') {
             steps {
                 script {
                     cleanWs()
                 }
             }
         }
-        stage('Checkout SCM'){
+
+        stage('Checkout SCM') {
             steps {
                 script {
                     git branch: 'main',
@@ -25,12 +27,13 @@ pipeline {
                     credentialsId: 'github'
                 }
             }
-  
+
         }
+
         stage('Build Docker Image'){
             steps{
                 script{
-                docker_image = docker.build "${IMAGE_NAME}"
+                    docker_image = docker.build "${IMAGE_NAME}"
                 }
             }
         }
@@ -39,22 +42,24 @@ pipeline {
             steps {
                 script{
                     docker.withRegistry('',REGISTRY_CREDS){
-                        docker_image.push("$BUILD_NUMBER")
+                        docker_image.push("$IMAGE_TAG")
                         docker_image.push('latest')
                     }
                 }
             }
         }
 
-        stage('Delete Docker images'){
-            steps{
-                script{
+
+        stage('Delete Docker images') {
+            steps {
+                script {
                     sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG}"
                     sh "docker rmi ${IMAGE_NAME}:latest"
                 }
             }
         }
-        stage('Updating kubernetes deployment file'){
+
+        stage('Updating kubernetes deployment file') {
             steps {
                 script {
                     sh """
@@ -64,7 +69,23 @@ pipeline {
                     """
                 }
             }
-        } 
+        }
+
+        stage('Push the change deployment file to Git') {
+            steps {
+                script {
+                    sh """
+                        git config --global user.name 'mgelvoleo'
+                        git config --global user.email 'mgelvoleo@gmail.com'
+                        git add deployment.yml
+                        git commit -m 'update the deployment.yml file'
+                    """
+
+                    withCredentials([gitUsernamePassword(credentialsId: 'github', gitToolName: 'Default')]) {
+                        git push "https://github.com/mgelvoleo/git-ops-project.git" main
+                    }
+                }
+            }
+        }
     }
 }
-// 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
