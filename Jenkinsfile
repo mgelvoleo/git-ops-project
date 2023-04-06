@@ -1,3 +1,5 @@
+@Library('docker') _
+
 pipeline {
     agent any
 
@@ -10,7 +12,7 @@ pipeline {
     }
 
     stages {
-        stage('Clean up workspace') {
+        stage('Clean up workspace'){
             steps {
                 script {
                     cleanWs()
@@ -24,8 +26,15 @@ pipeline {
                     url: 'https://github.com/mgelvoleo/git-ops-project.git',
                     credentialsId: 'github'
                 }
-                }
+            }
   
+        }
+        stage('Build Docker Image'){
+            steps{
+                script{
+                docker_image = docker.build "${IMAGE_NAME}"
+                }
+            }
         }
     }
 }
