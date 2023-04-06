@@ -34,6 +34,17 @@ pipeline {
                 }
             }
         }
+
+        stage('Push to Docker Hub') {
+            steps {
+                script{
+                    docker.withRegistry('',REGISTRY_CREDS){
+                        docker_image.push("$BUILD_NUMBER")
+                        docker_image.push('latest')
+                    }
+                }
+            }
+        }
     }
 }
 // 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
